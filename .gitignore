@@ -1,0 +1,67 @@
+# =====================================================================
+# Python Bytecode & Cache Files
+# =====================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# =====================================================================
+# Virtual Environments
+# =====================================================================
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# =====================================================================
+# Testing, Coverage & Profiling
+# =====================================================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# =====================================================================
+# Jupyter & Notebook Checkpoints
+# =====================================================================
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# =====================================================================
+# Local IDE & OS Artifacts
+# =====================================================================
+.vscode/settings.json
+.vscode/*.log
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*~
+
+# =====================================================================
+# Large Model Checkpoints & Pretrained Caches
+# =====================================================================
+models/judgebert_x_xlmr/*.bin
+models/judgebert_x_xlmr/*.pt
+models/judgebert_x_xlmr/*.safetensors
+models/sentence_transformer/*.bin
+models/sentence_transformer/*.pt
+models/sentence_transformer/*.safetensors
+*.ckpt
+
+# Preserved project assets
+!models/tfidf/crosslingual_tfidf.pkl
+!data/
+!outputs/
+
+# Local IDE settings
+.vscode/

@@ -59,67 +59,8 @@ In legal agreements, subtle linguistic modifications completely alter legal enfo
 
 ---
 
-## 4. Repository Structure
 
-```text
-nlp_m2/
-│
-├── data/
-│   ├── raw/                           # Original domain datasets (Insurance & Tenancy)
-│   │   ├── english_insurance.csv
-│   │   ├── english_tenancy.xlsx
-│   │   ├── hindi_insurance.json
-│   │   └── hindi_tenancy.jsonl
-│   └── english_hindi/                 # 160 aligned English-Hindi legal sentence pairs
-│       ├── aligned_dataset.csv        # Balanced dataset (80 Tenancy, 80 Insurance)
-│       ├── annotated.csv              # Human annotation placeholder
-│       ├── annotation_template.csv    # Annotation template for legal practitioners
-│       └── splits/                    # Leakage-safe partitions (Train: 112, Val: 24, Test: 24)
-│
-├── models/
-│   ├── tfidf/                         # Model 1 artifacts
-│   │   └── crosslingual_tfidf.pkl
-│   ├── sentence_transformer/          # Model 2 calibration artifacts
-│   └── proposed_minilm/               # Model 3 neural regression checkpoints & configs
-│
-├── src/
-│   ├── __init__.py                    # Package exports
-│   ├── preprocessing.py               # Devanagari numeral, danda, and NFC normalization
-│   ├── data_loader.py                 # Split loader with clause-overlap assertion checks
-│   ├── tfidf_model.py                 # Model 1: Cross-Lingual TF-IDF Baseline
-│   ├── sentence_transformer_model.py  # Model 2: Multilingual Sentence Transformer
-│   ├── minilm_l12.py                  # Model 3: Proposed MiniLM-L12 Neuro-Symbolic Model
-│   ├── evaluation.py                  # Benchmark evaluator across all 3 models
-│   ├── prediction.py                  # Unified inference engine & invariant verifier
-│   └── explainability.py              # 10-category legal discrepancy analysis engine
-│
-├── outputs/
-│   ├── predictions/
-│   │   ├── english_hindi_test_predictions.csv
-│   │   └── prediction_history.csv     # Persistent run log for all terminal predictions
-│   └── reports/
-│       ├── english_hindi_evaluation.csv# Test benchmark evaluation metrics
-│       └── sanity_check_results.csv   # 10 legal invariant sanity check results
-│
-├── tests/
-│   └── test_minilm_l12.py             # Automated unit tests for the 3 models & pipeline
-│
-├── hindi_extension/
-│   └── predict.py                     # Convenience entrypoint wrapper
-│
-├── predict.py                         # Primary Terminal CLI for interactive predictions
-├── run_sanity_checks.py               # Automated 10-case legal sanity check suite
-├── train.py                           # Training execution CLI (MiniLM-L12 pipeline)
-├── evaluate.py                        # Benchmark evaluation CLI
-├── run_predict.bat                    # Windows batch launcher for interactive predictions
-├── run_tests.bat                      # Windows batch launcher for test execution
-├── requirements.txt                   # Dependency specifications
-└── README.md                          # Repository documentation
-```
-
----
-
-## 5. Setup & Installation
+## 4. Setup & Installation
 
 ### Prerequisites
 - Python 3.10 to 3.14 on Windows, Linux, or macOS.
@@ -141,7 +82,7 @@ pip install -r requirements.txt
 
 ---
 
-## 6. Usage & Execution
+## 5. Usage & Execution
 
 ### 1. Interactive Legal Translation Prediction
 
@@ -195,7 +136,7 @@ python -m unittest tests/test_minilm_l12.py
 
 ---
 
-## 7. Results on the 10 Legal Sanity Checks
+## 6. Results on the 10 Legal Sanity Checks
 
 | Test ID | Legal Scenario | English Clause | Hindi Clause | Expected | Result |
 | :---: | :--- | :--- | :--- | :---: | :---: |

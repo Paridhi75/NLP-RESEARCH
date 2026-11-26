@@ -1,5 +1,5 @@
 """
-JUDGEBERT-X English-to-Hindi Legal Explainability Engine.
+English-to-Hindi Legal Meaning Preservation Explainability Engine.
 Identifies WHAT legal meaning elements changed between an English source sentence
 and its Hindi translation across 10 distinct legal error categories:
 1. NUMBER AND PERCENTAGE / CURRENCY CHANGE
@@ -80,8 +80,10 @@ def extract_numbers_from_hindi(text: str) -> Set[int]:
             nums.add(val)
         except Exception:
             pass
+    # Match Devanagari words strictly by tokens to avoid substring false positives (e.g. 'चार' in 'कर्मचारी')
+    tokens = set(re.findall(r"[\u0900-\u097F]+", text))
     for w, val in HI_WORD_NUMBERS.items():
-        if w in text:
+        if w in tokens:
             nums.add(val)
     return nums
 
@@ -131,8 +133,19 @@ class CrossLingualLegalExplainabilityEngine:
     ]
 
     # 4. Condition Patterns
-    EN_CONDITIONS = [r"\bif\b", r"\bprovided that\b", r"\bprovided\b", r"\bin the event\b", r"\bsubject to\b", r"\bon condition that\b", r"\bin case\b", r"\bwhenever\b"]
-    HI_CONDITIONS = [r"यदि", r"अगर", r"बशर्ते", r"की स्थिति में", r"के अधीन", r"होने पर", r"शर्त"]
+    EN_CONDITIONS = [
+        r"\bif\b", r"\bprovided that\b", r"\bprovided\b", r"\bin the event\b",
+        r"\bsubject to\b", r"\bon condition that\b", r"\bin case\b", r"\bwhenever\b",
+        r"\bonly with\b", r"\bwith(?:out)? (?:the )?(?:prior )?written consent\b",
+        r"\bwith(?:out)? (?:the )?(?:prior )?written permission\b",
+        r"\bprior written consent\b", r"\bwritten consent\b", r"\bprior consent\b",
+        r"\bwritten permission\b", r"\bprior written permission\b",
+        r"\bconsent from\b", r"\bconsent of\b", r"\bpermission from\b", r"\bpermission of\b"
+    ]
+    HI_CONDITIONS = [
+        r"यदि", r"अगर", r"बशर्ते", r"की स्थिति में", r"के अधीन", r"होने पर", r"शर्त",
+        r"सहमति", r"अनुमति", r"मंजूरी", r"इजाजत", r"इज़ाज़त"
+    ]
 
     # 5. Exception Patterns
     EN_EXCEPTIONS = [r"\bexcept\b", r"\bunless\b", r"\bexcluding\b", r"\bother than\b", r"\bsave for\b", r"\bnotwithstanding\b", r"\bapart from\b"]
@@ -191,25 +204,33 @@ class CrossLingualLegalExplainabilityEngine:
         # -------------------------------------------------------------
         # 1. NUMBER AND PERCENTAGE / CURRENCY CHANGE
         # -------------------------------------------------------------
+        en_years = {int(y) for y in re.findall(r"\b(?:19|20)\d{2}\b", en_text)}
+        hi_years = {int(y) for y in re.findall(r"\b(?:19|20)\d{2}\b", devanagari_to_arabic_digits(hi_text))}
+        date_year_diff = (en_years != hi_years and (bool(en_years) or bool(hi_years)))
+
         en_nums = extract_numbers_from_english(en_text)
         hi_nums = extract_numbers_from_hindi(hi_text)
         en_pcts = extract_percentages_from_english(en_text)
         hi_pcts = extract_percentages_from_hindi(hi_text)
 
-        num_diff = (en_nums != hi_nums and (bool(en_nums) or bool(hi_nums)))
+        # Separate calendar years from pure quantity/monetary numbers
+        pure_en_nums = en_nums - en_years
+        pure_hi_nums = hi_nums - hi_years
+
+        num_diff = (pure_en_nums != pure_hi_nums and (bool(pure_en_nums) or bool(pure_hi_nums)))
         pct_diff = (bool(en_pcts) and not bool(hi_pcts)) or (not bool(en_pcts) and bool(hi_pcts))
 
         if num_diff or pct_diff:
             counts["number_changes"] += 1
             en_items = []
-            if en_nums:
-                en_items.append(f"amounts: {sorted(list(en_nums))}")
+            if pure_en_nums:
+                en_items.append(f"amounts: {sorted(list(pure_en_nums))}")
             if en_pcts:
                 en_items.append(f"rates: {en_pcts}")
 
             hi_items = []
-            if hi_nums:
-                hi_items.append(f"amounts: {sorted(list(hi_nums))}")
+            if pure_hi_nums:
+                hi_items.append(f"amounts: {sorted(list(pure_hi_nums))}")
             if hi_pcts:
                 hi_items.append(f"rates: {hi_pcts}")
             else:
@@ -235,15 +256,16 @@ class CrossLingualLegalExplainabilityEngine:
 
         en_prohib = cls._matches(en_norm, cls.EN_PROHIBITION)
         hi_perm = cls._matches(hi_norm, cls.HI_PERMISSION)
+        hi_verb_neg = bool(re.search(r"(?:नहीं|नही)\s*(?:[^\s।,!?]+\s*)?(?:सकता|सकती|सकते|करेगा|करेगी|करेंगे|देगा|देगी|देंगे|होगा|होगी)", hi_norm)) or bool(re.search(r"(?:^|\s)न\s*(?:[^\s।,!?]+\s*)?(?:सकता|सकती|सकते|देगा|देगी|देंगे)", hi_norm))
 
-        if bool(en_prohib) and bool(hi_perm) and not hi_has_neg:
+        if bool(en_prohib) and bool(hi_perm) and not hi_verb_neg:
             counts["negation_changes"] += 1
             findings.append({
                 "category": "NEGATION CHANGE",
                 "status": "DETECTED",
                 "english": f"Explicit prohibition: {', '.join(en_prohib)}",
                 "hindi": f"Affirmative permission: {', '.join(hi_perm)}",
-                "explanation": "The original legal clause prohibits this action, but the translation expresses affirmative permission without negation.",
+                "explanation": "The original legal clause prohibits this action, but the translation expresses affirmative permission without verbal negation.",
                 "overlap_note": None
             })
         elif en_has_neg != hi_has_neg:
@@ -397,7 +419,17 @@ class CrossLingualLegalExplainabilityEngine:
         hi_pre = cls._matches(hi_norm, cls.HI_TEMPORAL_PRE)
         hi_post = cls._matches(hi_norm, cls.HI_TEMPORAL_POST)
 
-        if (bool(en_pre) and bool(hi_post)) or (bool(en_post) and bool(hi_pre)):
+        if date_year_diff:
+            counts["temporal_changes"] += 1
+            findings.append({
+                "category": "DATE AND TEMPORAL CHANGE",
+                "status": "DETECTED",
+                "english": f"Contract date / year: {sorted(list(en_years)) if en_years else 'None'}",
+                "hindi": f"Contract date / year: {sorted(list(hi_years)) if hi_years else 'None'}",
+                "explanation": "Contractual date or expiration year altered between English and Hindi translation.",
+                "overlap_note": None
+            })
+        elif (bool(en_pre) and bool(hi_post)) or (bool(en_post) and bool(hi_pre)):
             counts["temporal_changes"] += 1
             findings.append({
                 "category": "DATE AND TEMPORAL CHANGE",
@@ -473,14 +505,14 @@ class CrossLingualLegalExplainabilityEngine:
     def explain_model_prediction(cls, model_name: str, score: Optional[float], category: str, analysis: Dict[str, Any]) -> str:
         """Provides an honest, model-specific explanation of the predicted LMP score."""
         if score is None:
-            return "Model score unavailable (XLM-RoBERTa pretrained weights (~1.1GB) not present in local offline cache)."
+            return "Model score unavailable."
 
         issues = analysis["total_issues"]
         has_neg = analysis["counts"]["negation_changes"] > 0
         has_mod = analysis["counts"]["modality_changes"] > 0
         has_num = analysis["counts"]["number_changes"] > 0
 
-        if model_name == "Cross-Lingual TF-IDF Baseline":
+        if model_name in ("Cross-Lingual TF-IDF Baseline", "TF-IDF + Cosine Similarity", "TF-IDF"):
             if score >= 7.0:
                 return "Score is high because bilingual lexicon projection detected substantial shared legal terminology."
             elif has_num or has_neg:
@@ -488,7 +520,7 @@ class CrossLingualLegalExplainabilityEngine:
             else:
                 return "Score reflects moderate bilingual lexical alignment across Latin and Devanagari vocabulary."
 
-        elif model_name == "Multilingual Sentence Transformer":
+        elif model_name in ("Multilingual Sentence Transformer", "Sentence-BERT"):
             if score >= 8.0 and (has_neg or has_mod):
                 return "Score is high due to strong topical sentence similarity; note that dense multilingual embeddings often remain close despite polarity or modal inversions."
             elif score >= 7.5:
@@ -496,11 +528,11 @@ class CrossLingualLegalExplainabilityEngine:
             else:
                 return "Score reflects moderate semantic divergence between the English clause and Hindi translation."
 
-        elif model_name == "JUDGEBERT-X (XLM-R)":
+        elif model_name in ("Proposed MiniLM-L12", "MiniLM-L12"):
             if analysis.get("has_checkpoint", False):
-                return "Score is computed by the supervised XLM-RoBERTa regression head trained on legal pair representations."
+                return "Score is computed by the trained MiniLM-L12 regression head combined with the 10-category legal invariant engine."
             else:
-                return "Score reflects zero-shot multilingual pair representation alignment [u; v; |u-v|] pending supervised human annotation."
+                return "Score reflects the Proposed MiniLM-L12 neuro-symbolic representation combined with the 10-category legal invariant engine."
 
         return f"Score falls into category '{category}' based on cross-lingual evaluation."
 

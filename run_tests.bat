@@ -9,8 +9,8 @@ if exist "C:\Users\Lenovo\AppData\Local\Python\bin" (
 set "TRANSFORMERS_OFFLINE=1"
 set "HF_HUB_OFFLINE=1"
 echo =======================================================
-echo Running JUDGEBERT-X Unit and System Tests
+echo Running Unit and System Tests
 echo =======================================================
-python -m unittest tests/test_judgebert_x.py
+python -m unittest tests/test_minilm_l12.py
 pause
 endlocal

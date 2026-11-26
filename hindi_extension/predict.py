@@ -1,6 +1,6 @@
 """
 hindi_extension/predict.py
-Delegates execution to the main JUDGEBERT-X predictor.
+Delegates execution to the main predictor.
 Enables running:
 python hindi_extension/predict.py --original "..." --candidate "..."
 """

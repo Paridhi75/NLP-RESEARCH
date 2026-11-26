@@ -50,9 +50,10 @@ Thumbs.db
 # =====================================================================
 # Large Model Checkpoints & Pretrained Caches
 # =====================================================================
-models/judgebert_x_xlmr/*.bin
-models/judgebert_x_xlmr/*.pt
-models/judgebert_x_xlmr/*.safetensors
+models/proposed_minilm/*.bin
+!models/proposed_minilm/pytorch_model.bin
+models/proposed_minilm/*.pt
+models/proposed_minilm/*.safetensors
 models/sentence_transformer/*.bin
 models/sentence_transformer/*.pt
 models/sentence_transformer/*.safetensors

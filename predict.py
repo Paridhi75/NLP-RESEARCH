@@ -38,10 +38,10 @@ def print_results(res, verbose=False):
     invariants = res.get("invariant_checks", "N/A")
 
     # =====================================================================
-    # 1. Primary Requested JUDGEBERT LMP Evaluation Box
+    # 1. Primary Requested LMP Evaluation Box
     # =====================================================================
     print("\n=====================================================================================")
-    print(" JUDGEBERT LEGAL MEANING PRESERVATION (LMP) EVALUATION ")
+    print(" LEGAL MEANING PRESERVATION (LMP) EVALUATION ")
     print("=====================================================================================")
     print(f"Original Text        : {en_text}")
     print(f"Candidate (Hindi)    : {hi_text}")
@@ -59,83 +59,7 @@ def print_results(res, verbose=False):
         return
 
     # =====================================================================
-    # 2. ALL MODELS BENCHMARK COMPARISON TABLE (Verbose Mode)
-    # =====================================================================
-    print("\n=====================================================================================")
-    print("                       ALL MODELS BENCHMARK COMPARISON                               ")
-    print("=====================================================================================")
-    header = f"{'Baseline / Model':<35}{'LMP Score':<16}{'Active Loaded Backbone':<33}"
-    print(header)
-    print("-" * 84)
-
-    display_baselines = [
-        "TF-IDF",
-        "Cosine Similarity",
-        "Sentence-BERT",
-        "MiniLM Transformer LMP",
-        "JUDGEBERT-X (XLM-R)"
-    ]
-
-    for model_name in display_baselines:
-        info = res["models"].get(model_name)
-        if not info:
-            continue
-        score = info.get("score")
-        if score is not None:
-            score_str = f"{score:.2f} / 10"
-        else:
-            score_str = "UNAVAILABLE"
-
-        backbone = info.get("active_backbone", "N/A")
-        if len(backbone) > 31:
-            backbone_disp = backbone[:28] + "..."
-        else:
-            backbone_disp = backbone
-
-        print(f"{model_name:<35}{score_str:<16}{backbone_disp:<33}")
-
-    print("-" * 84)
-    print(f"Final Selected Prediction Model : {res.get('final_model_name', 'MiniLM Transformer LMP')}")
-    print("=====================================================================================")
-
-    # =====================================================================
-    # 3. Model Status & Lineage Details
-    # =====================================================================
-    print("\nModel Status & Lineage Details:")
-    idx = 1
-    for model_name in display_baselines:
-        info = res["models"].get(model_name)
-        if not info:
-            continue
-        tr_st = info.get("training_status", "UNKNOWN")
-        cal_st = info.get("calibration_status", "UNCALIBRATED")
-        bb = info.get("active_backbone", "N/A")
-        tgt_bb = info.get("target_backbone", "N/A")
-        sc_type = info.get("score_type", "Experimental Score")
-        print(f"  [{idx}] {model_name}:")
-        print(f"      • Active Backbone:   {bb}")
-        if bb != tgt_bb and tgt_bb != "N/A":
-            print(f"      • Target Backbone:   {tgt_bb}")
-        print(f"      • Training Status:   {tr_st}")
-        print(f"      • Calibration:       {cal_st}")
-        print(f"      • Score Type:        {sc_type}")
-        idx += 1
-
-    # =====================================================================
-    # 4. Experimental Score Warning Banner
-    # =====================================================================
-    print("\n=====================================================================================")
-    print("⚠️  EXPERIMENTAL SCORE WARNING & ZERO-FABRICATION NOTICE")
-    print("=====================================================================================")
-    print("• There are currently 0 genuine human-annotated English-Hindi training pairs.")
-    print("• All numerical scores above are EXPERIMENTAL ZERO-SHOT SIMILARITY/ALIGNMENT scores.")
-    print("• They are NOT validated legal preservation ratings.")
-    print("• No supervised fine-tuning or regression training has occurred on human labels.")
-    print("• In offline sandbox mode, XLM-RoBERTa pretrained weights (~1.1GB) are unavailable;")
-    print("  JUDGEBERT-X truthfully reports UNAVAILABLE rather than substituting MiniLM.")
-
-    # =====================================================================
-    # 5. Detailed Legal Meaning Change Analysis
+    # 2. Detailed Legal Meaning Change Analysis
     # =====================================================================
     explain_data = res.get("explainability", {})
     findings = explain_data.get("findings", [])
@@ -159,7 +83,7 @@ def print_results(res, verbose=False):
             print()
 
     # =====================================================================
-    # 6. Final Category-Wise Summary
+    # 4. Final Category-Wise Summary
     # =====================================================================
     print("=====================================================================================")
     print("                       CATEGORY-WISE SUMMARY                                         ")
@@ -176,20 +100,7 @@ def print_results(res, verbose=False):
     print(f"10. Clause / Consequence Omissions: {counts.get('omissions', 0)}")
     print("-" * 75)
     print(f"Total Potential Legal Meaning Issues Flagged: {total_issues}")
-
-    # =====================================================================
-    # 7. Detection Limitation & Legal Review Warning
-    # =====================================================================
-    print("\n=====================================================================================")
-    print("⚖️  DETECTION LIMITATION & LEGAL EXPERT REVIEW WARNING")
-    print("=====================================================================================")
-    print("• " + explain_data.get("detection_limitation_disclaimer", (
-        "Rule-based detection matches lexical keywords, regex patterns, numerals, and bilingual lexicon entries. "
-        "It does not possess full semantic or jurisdictional legal reasoning capability."
-    )))
-    print("• These automated screening findings are NOT a substitute for formal legal review.")
-    print("• Always consult a qualified advocate or legal counsel for statutory compliance.")
-    print("-------------------------------------------------------------------------------------\n")
+    print("=====================================================================================\n")
 
 
 def main():

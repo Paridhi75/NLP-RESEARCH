@@ -9,7 +9,7 @@ if exist "C:\Users\Lenovo\AppData\Local\Python\bin" (
 set "TRANSFORMERS_OFFLINE=1"
 set "HF_HUB_OFFLINE=1"
 echo =======================================================
-echo Starting JUDGEBERT-X English-to-Hindi Terminal Predictor
+echo Starting English-to-Hindi Legal Meaning Preservation Predictor
 echo =======================================================
 python predict.py
 pause

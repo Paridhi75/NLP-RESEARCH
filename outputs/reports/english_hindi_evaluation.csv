@@ -1,6 +1,4 @@
-model,ground_truth_status,n_test_samples,faithful_mean_score,perturbed_mean_score,contrastive_margin,notes
-TF-IDF,PENDING_HUMAN_ANNOTATION,24,1.96,1.88,0.08,Bilingual lexicon-projected cross-lingual lexical baseline.
-Cosine Similarity,PENDING_HUMAN_ANNOTATION,24,7.6,6.83,0.77,Direct uncalibrated dense cosine similarity in multilingual embedding space.
-Sentence-BERT,PENDING_HUMAN_ANNOTATION,24,6.48,5.95,0.54,Dense multilingual Sentence-BERT embeddings capture topical alignment.
-MiniLM Transformer LMP,PENDING_HUMAN_ANNOTATION,24,1.85,1.7,0.15,"Final invariant-verified MiniLM LMP model: penalizes legal distortions (e.g. negation flips, condition omissions)."
-JUDGEBERT-X (XLM-R),WEIGHTS_UNAVAILABLE_OFFLINE,24,UNAVAILABLE,UNAVAILABLE,UNAVAILABLE,Pretrained XLM-RoBERTa weights missing from offline sandbox cache; Tokenizer & 768-dim config verified.
+model,ground_truth_status,n_test_samples,mean_faithful_lmp,mean_perturbed_lmp,contrastive_margin,discrimination_check
+TF-IDF + Cosine Similarity,ZERO_SHOT_CONTRASTIVE_EVAL,24,1.9642,1.8808,0.0833,PASS
+Sentence-BERT,ZERO_SHOT_CONTRASTIVE_EVAL,24,6.4817,5.9467,0.535,PASS
+Proposed MiniLM-L12,ZERO_SHOT_CONTRASTIVE_EVAL,24,4.69,3.1025,1.5875,PASS

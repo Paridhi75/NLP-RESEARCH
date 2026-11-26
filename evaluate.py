@@ -16,7 +16,7 @@ from src.evaluation import EnglishHindiEvaluator
 
 def main():
     print("======================================================================")
-    print("   JUDGEBERT-X: ENGLISH-TO-HINDI BENCHMARK EVALUATION SUITE           ")
+    print("   ENGLISH-TO-HINDI BENCHMARK EVALUATION SUITE                        ")
     print("======================================================================")
     evaluator = EnglishHindiEvaluator()
     summary = evaluator.run_evaluation()

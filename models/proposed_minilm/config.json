@@ -1,0 +1,8 @@
+{
+  "model_name": "Proposed MiniLM-L12 Neuro-Symbolic Model",
+  "backbone": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "in_features": 1152,
+  "hidden1": 256,
+  "hidden2": 64,
+  "dropout": 0.2
+}

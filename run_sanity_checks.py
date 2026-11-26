@@ -1,5 +1,5 @@
 """
-JUDGEBERT-X: English-to-Hindi Sanity Checks Benchmark (Task 7).
+10 Rigorous English-to-Hindi Legal Sanity Checks Benchmark (Task 7).
 Executes the 10 rigorous legal sanity test cases evaluating boundary behavior:
 1. SAN-01: Identical / Faithful legal translation
 2. SAN-02: Completely unrelated sentences (Cross-domain: Insurance vs Tenancy)
@@ -126,7 +126,7 @@ def run_all_sanity_checks():
     ]
 
     print("=====================================================================================")
-    print("        JUDGEBERT-X: 10 RIGOROUS ENGLISH-TO-HINDI SANITY CHECKS (TASK 7)             ")
+    print("           10 RIGOROUS ENGLISH-TO-HINDI SANITY CHECKS (TASK 7)               ")
     print("=====================================================================================")
 
     results_table = []
@@ -148,7 +148,9 @@ def run_all_sanity_checks():
         rationale = res.get("legal_rationale", "N/A")
         invariants = res.get("invariant_checks", "N/A")
 
-        sc_tfidf = res["models"]["TF-IDF"]["score"]
+        sc_tfidf = res["models"].get("TF-IDF + Cosine Similarity", {}).get("score")
+        sc_st = res["models"].get("Sentence-BERT", {}).get("score")
+        sc_minilm = res["models"].get("Proposed MiniLM-L12", {}).get("score")
 
         # Check if sanity check passed
         is_passed = False
@@ -170,15 +172,15 @@ def run_all_sanity_checks():
             "Expected": exp_dec,
             "TF-IDF": f"{sc_tfidf:.2f}" if sc_tfidf is not None else "N/A",
             "Cosine Sim": f"{raw_cos:.4f}",
-            "Sentence-BERT": f"{base_lmp:.2f}",
-            "MiniLM Transformer LMP": f"{final_lmp:.2f}",
+            "Sentence-BERT": f"{sc_st:.2f}" if sc_st is not None else "N/A",
+            "Proposed MiniLM-L12": f"{final_lmp:.2f}",
             "Preservation Decision": pres_dec[:25] + "...",
             "Status": status_str
         })
 
         print(f"\n[{cid}] Scenario: {scen}")
         print("=" * 85)
-        print(" JUDGEBERT LEGAL MEANING PRESERVATION (LMP) EVALUATION ")
+        print(" LEGAL MEANING PRESERVATION (LMP) EVALUATION ")
         print("=" * 85)
         print(f"Original Text        : {en}")
         print(f"Candidate (Hindi)    : {hi}")

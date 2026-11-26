@@ -1,10 +1,6 @@
 # Explainable Multilingual Legal Meaning Preservation: A Comparative Study of TF-IDF, Sentence-BERT, and MiniLM-L12 Models
 
-**Subtitle:** *A Neuro-Symbolic Approach to Cross-Lingual Contract Verification Across English and Hindi*  
-**Author:** Harshita Wadhwa  
-**Affiliation:** Department of Computer Science and Engineering, Bennett University, Greater Noida, India (2026)  
-**Email:** [harshita.wadhwa@bennett.edu.in](mailto:harshita.wadhwa@bennett.edu.in)
-
+**Subtitle:** *A Neuro-Symbolic Approach to Cross-Lingual Contract Verification Across English and Hindi*   
 ---
 
 ## 1. Overview & Research Motivation
